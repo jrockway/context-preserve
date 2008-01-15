@@ -116,25 +116,39 @@ function was called in.
 
 =head1 EXPORT
 
-=head2 preserve_context
+C<preserve_context>
 
 =head1 FUNCTIONS
 
 =head2 preserve_context { original } [after|replace] => sub { after }
 
 Invokes C<original> in the same context as C<preserve_context> was
-called in, save the results, run C<after> in the same context, then
-return the result of C<original>.  C<after>'s return value is ignored,
-but C<wantarray> will be correct inside it, and the results of
-C<original> will be available in C<@_> (and can be modified before
-return).
+called in, save the results, runs C<after> in the same context, then
+returns the result of C<original> (or C<after> if C<replace> is used).
+
+If the second argument is C<after>, then you can modify C<@_> to
+affect the return value.  C<after>'s return value is ignored.  
+
+If the second argument is C<replace>, then modifying C<@_> doesn't do
+anything.  The return value of C<after> is returned from
+C<preserve_context> instead.
 
 Run C<preserve_context> like this:
 
   sub whatever {
       ...
-      return preserve_context { orginal_function()     }
-                 after => sub { modify(@_) or whatever };
+      return preserve_context { orginal_function() }
+                 after => sub { modify @_          };
+  }
+
+  or
+
+  sub whatever {
+      ...
+      return preserve_context   { orginal_function() }
+                 replace => sub { return @new_return };
+  }
+  
 
 Note that there's no comma between the first block and the C<< after
 => >> part.  This is how perl parses functions with the C<(&@)>
@@ -142,7 +156,8 @@ prototype.  The alternative is to say:
 
       preserve_context(sub { original }, after => sub { after }); 
 
-You can do whatever, but the first version is much prettier.
+You can pick the one you like, but I think the first version is much
+prettier.
 
 =head1 AUTHOR AND COPYRIGHT
 
