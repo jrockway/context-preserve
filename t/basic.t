@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 9;
+use Test::More tests => 11;
 use Context::Preserve;
 my $after = 0;
 
@@ -17,6 +17,8 @@ is scalar bar(), 'scalar42';
 is_deeply [baz()], [qw/anARRAY arrayARRAY/];
 is scalar baz(), 'scalarSCALAR';
 
+is_deeply [quux()], [qw/hello there friendly world/];
+is scalar quux(), 'world';
 
 sub code {
     if(wantarray){ 
@@ -44,7 +46,16 @@ sub baz {
         return code();
     } after => sub { 
         my $wa = wantarray ? "ARRAY" : "SCALAR";
-        $_ .= "$wa" for @_ 
+        $_ .= "$wa" for @_ ;
+        return qw/oh noes/; # this is ignored
+    };   
+}
+
+# this was a good idea when i had one function, now it's getting old
+sub quux {
+    return preserve_context {
+        return code();
+    } replace => sub { 
+        return qw/hello there friendly world/;
     };
-    
 }
