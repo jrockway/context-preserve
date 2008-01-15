@@ -1,7 +1,8 @@
 use strict;
 use warnings;
-use Test::More tests => 11;
+use Test::More tests => 12;
 use Context::Preserve;
+use Test::Exception;
 my $after = 0;
 
 is $after, 0;
@@ -19,6 +20,9 @@ is scalar baz(), 'scalarSCALAR';
 
 is_deeply [quux()], [qw/hello there friendly world/];
 is scalar quux(), 'world';
+
+throws_ok { preserve_context {}, made_up => sub {} }
+  qr/need an "after" or "replace" coderef/;
 
 sub code {
     if(wantarray){ 
